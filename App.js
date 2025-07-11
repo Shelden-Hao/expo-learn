@@ -1,13 +1,33 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function App() {
-  const [count, setCount] = useState(0);
+  const [courses, setCourses] = useState([]);
+
+  /**
+   * 获取搜索接口课程数据
+   * @returns {Promise<void>}
+   */
+  const fetchData = async () => {
+    const res = await fetch('http://192.168.1.138:3000/search');
+    const { data } = await res.json();
+    setCourses(data.courses);
+    console.log('获取到的数据是：', data.courses);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Text>{count}</Text>
-      <Button title="Click me" onPress={() => setCount(count + 1)} />
+      {courses.map((course) => (
+        <Text key={course.id}>
+          {course.name}
+        </Text>
+      ))}
+
+      {/* <Button title='获取课程' onPress={fetchData}/> */}
     </View>
   );
 }
