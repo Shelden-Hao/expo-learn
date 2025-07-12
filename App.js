@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import Loading from "./components/shared/Loading";
+import { StyleSheet, Text, View } from "react-native";
+import NetworkError from "./components/shared/NetworkError";
 
 export default function App() {
   const [courses, setCourses] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   /**
    * 获取搜索接口课程数据
@@ -13,37 +13,33 @@ export default function App() {
    */
   const fetchData = async () => {
     try {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const res = await fetch(`http://192.168.1.138:3000/search?q=${keyword}`);
+      const res = await fetch(`http://192.168.1.138/search?q=${keyword}`);
       const { data } = await res.json();
       setCourses(data.courses);
       console.log("获取到的数据是：", data.courses);
     } catch (error) {
-      console.log("获取数据失败：", error);
-    } finally {
-      setLoading(false);
+      console.error("获取数据失败：", error);
+      setError(true);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [keyword]);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Text>请输入关键字</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="请输入关键字"
-        value={keyword}
-        onChangeText={setKeyword}
-        defaultValue={keyword}
-      />
-      {loading ? (
-        <Loading />
+      {error ? (
+        <NetworkError />
       ) : (
-        courses.map((course) => <Text key={course.id}>{course.name}</Text>)
+        <>
+          {courses.map((course) => (
+            <Text key={course.id}>{course.name}</Text>
+          ))}
+          <TouchableOpacity style={styles.reload}>
+            <Text style={styles.label}>重新加载</Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
