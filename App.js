@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import NetworkError from "./components/shared/NetworkError";
+import { get } from "./utils/request";
 
 export default function App() {
   const [courses, setCourses] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [error, setError] = useState(false);
 
   /**
    * 获取搜索接口课程数据
@@ -13,13 +12,13 @@ export default function App() {
    */
   const fetchData = async () => {
     try {
-      const res = await fetch(`http://192.168.1.138/search?q=${keyword}`);
-      const { data } = await res.json();
-      setCourses(data.courses);
-      console.log("获取到的数据是：", data.courses);
+      // const res = await fetch(`http://192.168.1.138/search?q=${keyword}`);
+      // const res = await request("/search", { params: { q: keyword } });
+      const res = await get("/search", { q: keyword });
+      setCourses(res.data.courses);
+      console.log("获取到的数据是：", res.data.courses);
     } catch (error) {
       console.error("获取数据失败：", error);
-      setError(true);
     }
   };
 
@@ -29,18 +28,9 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {error ? (
-        <NetworkError />
-      ) : (
-        <>
-          {courses.map((course) => (
-            <Text key={course.id}>{course.name}</Text>
-          ))}
-          <TouchableOpacity style={styles.reload}>
-            <Text style={styles.label}>重新加载</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      {courses.map((course) => (
+        <Text key={course.id}>{course.name}</Text>
+      ))}
     </View>
   );
 }
@@ -51,14 +41,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-  },
-  input: {
-    height: 40,
-    width: 300,
-    margin: 12,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
   },
 });
