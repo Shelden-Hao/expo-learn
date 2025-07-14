@@ -1,33 +1,23 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { get } from "./utils/request";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import useFetchData from "./hooks/useFetchData";
 
 export default function App() {
-  const [courses, setCourses] = useState([]);
   const [keyword, setKeyword] = useState("");
-
-  /**
-   * 获取搜索接口课程数据
-   * @returns {Promise<void>}
-   */
-  const fetchData = async () => {
-    try {
-      // const res = await fetch(`http://192.168.1.138/search?q=${keyword}`);
-      // const res = await request("/search", { params: { q: keyword } });
-      const res = await get("/search", { q: keyword });
-      setCourses(res.data.courses);
-      console.log("获取到的数据是：", res.data.courses);
-    } catch (error) {
-      console.error("获取数据失败：", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data, loading, error, onReload } = useFetchData("/search", { q: "" });
+  const { courses } = data;
 
   return (
     <View style={styles.container}>
+      <Text>您搜索的关键词是：{keyword}</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="请填写要所搜索的课程!"
+        onChangeText={(text) => setKeyword(text)}
+        defaultValue={keyword}
+      />
+
       {courses.map((course) => (
         <Text key={course.id}>{course.name}</Text>
       ))}
@@ -41,5 +31,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  input: {
+    height: 40,
+    width: 300,
+    margin: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
   },
 });
