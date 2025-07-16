@@ -1,25 +1,17 @@
 import { Link, Stack } from 'expo-router';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native'
-import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import { TouchableOpacity, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-/**
- * 导航栏 Logo 组件
- */
-function LogoTitle() {
-  return <Image style={style.logo} contentFit="contain" source={require('../assets/logo-light.png')}/>
-}
-
-/**
- * 导航栏按钮组件
- * @param props
- */
-function HeaderButton({ href, ...rest }) {
+// 模态页关闭按钮
+function CloseButton() {
   return (
-    <Link href={href} asChild>
-      <TouchableOpacity>
-        <SimpleLineIcons size={20} color="#1f99b0" {...rest} />
-      </TouchableOpacity>
-    </Link>
+    <View style={{ width: 30 }}>
+      <Link href="../" asChild>
+        <TouchableOpacity>
+          <MaterialCommunityIcons name="close" size={30} color="#1f99b0" />
+        </TouchableOpacity>
+      </Link>
+    </View>
   )
 }
 
@@ -39,38 +31,25 @@ export default function Layout() {
         headerBackButtonDisplayMode: 'minimal', // 设置返回按钮只显示箭头，不显示文字
       }}
     >
-      <Stack.Screen
-        name="index"
+      {/* Tabs */}
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+      {/* Cards */}
+      <Stack.Screen name="articles/index" options={{ title: '通知' }} />
+      <Stack.Screen name="settings/index" options={{ title: '设置' }} />
+      <Stack.Screen name="courses/[id]" options={{ title: '课程详情' }} />
+      <Stack.Screen name="search/index" options={{ title: '搜索' }} />
+
+       {/* Modal */}
+       <Stack.Screen
+        name="teachers/[id]"
         options={{
-          headerTitle: props => <LogoTitle {...props} />,
-          headerLeft: () => <HeaderButton name="bell" href="/articles" style={style.headerLeft} />,
-          headerRight: () => (
-            <>
-              <HeaderButton name="magnifier" href="/search" style={style.headerRight} />
-              <HeaderButton name="options" href="/settings" style={style.headerRight} />
-            </>
-          ),
+          presentation: 'modal',
+          animation: 'slide_from_bottom', // 从底部滑入
+          title: '老师详情',
+          headerLeft: () => <CloseButton />,
         }}
-      />
-      <Stack.Screen
-        name="courses/[id]"
-        options={({ route }) => ({
-          title: route.params?.title || '课程页', // 使用 params 中的 title，如果没有则显示默认值
-        })}
       />
     </Stack>
   );
 }
-
-const style = StyleSheet.create({
-  logo: {
-    width: 130,
-    height: 30,
-  },
-  headerLeft: {
-    marginLeft: 15,
-  },
-  headerRight: {
-    marginRight: 15,
-  },
-});
